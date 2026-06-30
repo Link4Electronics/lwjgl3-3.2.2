@@ -8,6 +8,7 @@ DISABLE_WARNINGS()
 #ifdef LWJGL_LINUX
     #include <alloca.h>
 #endif
+#define STB_VORBIS_BIG_ENDIAN 1
 #include "stb_vorbis.c"
 ENABLE_WARNINGS()
 

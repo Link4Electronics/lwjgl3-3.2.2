@@ -131,6 +131,10 @@ public class STBImage {
         throw new UnsupportedOperationException();
     }
 
+    private static ByteBuffer pixelBufferSafe(long address, int capacity) {
+        return memByteBufferSafe(address, capacity).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
     // --- [ stbi_load ] ---
 
     /** Unsafe version of: {@link #stbi_load load} */
@@ -177,7 +181,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load(memAddress(filename), memAddress(x), memAddress(y), memAddress(channels_in_file), desired_channels);
-        return memByteBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
+        return pixelBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
     }
 
     /**
@@ -224,7 +228,7 @@ public class STBImage {
             stack.nUTF8(filename, true);
             long filenameEncoded = stack.getPointerAddress();
             long __result = nstbi_load(filenameEncoded, memAddress(x), memAddress(y), memAddress(channels_in_file), desired_channels);
-            return memByteBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
+            return pixelBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
         } finally {
             stack.setPointer(stackPointer);
         }
@@ -257,7 +261,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load_from_memory(memAddress(buffer), buffer.remaining(), memAddress(x), memAddress(y), memAddress(channels_in_file), desired_channels);
-        return memByteBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
+        return pixelBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
     }
 
     // --- [ stbi_load_from_callbacks ] ---
@@ -291,7 +295,7 @@ public class STBImage {
             STBIIOCallbacks.validate(clbk.address());
         }
         long __result = nstbi_load_from_callbacks(clbk.address(), user, memAddress(x), memAddress(y), memAddress(channels_in_file), desired_channels);
-        return memByteBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
+        return pixelBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
     }
 
     // --- [ stbi_load_gif_from_memory ] ---
@@ -325,7 +329,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load_gif_from_memory(memAddress(buffer), buffer.remaining(), memAddress(delays), memAddress(x), memAddress(y), memAddress(z), memAddress(channels_in_file), desired_channels);
-        return memByteBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * z.get(z.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
+        return pixelBufferSafe(__result, x.get(x.position()) * y.get(y.position()) * z.get(z.position()) * (desired_channels != 0 ? desired_channels : channels_in_file.get(channels_in_file.position())));
     }
 
     // --- [ stbi_load_16 ] ---
@@ -1043,7 +1047,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load(memAddress(filename), x, y, channels_in_file, desired_channels);
-        return memByteBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
+        return pixelBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
     }
 
     /** Array version of: {@link #stbi_load load} */
@@ -1060,7 +1064,7 @@ public class STBImage {
             stack.nUTF8(filename, true);
             long filenameEncoded = stack.getPointerAddress();
             long __result = nstbi_load(filenameEncoded, x, y, channels_in_file, desired_channels);
-            return memByteBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
+            return pixelBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
         } finally {
             stack.setPointer(stackPointer);
         }
@@ -1079,7 +1083,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load_from_memory(memAddress(buffer), buffer.remaining(), x, y, channels_in_file, desired_channels);
-        return memByteBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
+        return pixelBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
     }
 
     /** Array version of: {@link #nstbi_load_from_callbacks} */
@@ -1096,7 +1100,7 @@ public class STBImage {
             STBIIOCallbacks.validate(clbk.address());
         }
         long __result = nstbi_load_from_callbacks(clbk.address(), user, x, y, channels_in_file, desired_channels);
-        return memByteBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
+        return pixelBufferSafe(__result, x[0] * y[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
     }
 
     /** Array version of: {@link #nstbi_load_gif_from_memory} */
@@ -1114,7 +1118,7 @@ public class STBImage {
             check(channels_in_file, 1);
         }
         long __result = nstbi_load_gif_from_memory(memAddress(buffer), buffer.remaining(), memAddress(delays), x, y, z, channels_in_file, desired_channels);
-        return memByteBufferSafe(__result, x[0] * y[0] * z[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
+        return pixelBufferSafe(__result, x[0] * y[0] * z[0] * (desired_channels != 0 ? desired_channels : channels_in_file[0]));
     }
 
     /** Array version of: {@link #nstbi_load_16} */

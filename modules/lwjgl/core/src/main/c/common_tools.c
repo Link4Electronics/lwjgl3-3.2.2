@@ -102,7 +102,7 @@ typedef struct EnvData_ {
         return data;
     }
 
-    inline EnvData* getEnvData(void) {
+    static inline EnvData* getEnvData(void) {
         EnvData* data = (EnvData*)TlsGetValue(envTLS);
         if ( data == NULL )
             data = envTLSGet();
@@ -158,7 +158,7 @@ typedef struct EnvData_ {
         return data;
     }
 
-    inline EnvData* getEnvData(void) {
+    static inline EnvData* getEnvData(void) {
         EnvData* data = (EnvData*)pthread_getspecific(envTLS);
         if ( data == NULL )
             data = envTLSGet();
