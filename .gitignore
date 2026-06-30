@@ -1,0 +1,15 @@
+/.idea/workspace.xml
+/.idea/usage.statistics.xml
+/nbproject/private/
+/bin
+/wiki
+.gradle
+.DS_Store
+*.bat
+*.jpg
+*.ogg
+*.sh
+*.ttf
+*.wav
+*.zip
+touch.txt
