@@ -132,7 +132,21 @@ public class STBImage {
     }
 
     private static ByteBuffer pixelBufferSafe(long address, int capacity) {
-        return memByteBufferSafe(address, capacity).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        java.nio.ByteBuffer buf = memByteBufferSafe(address, capacity);
+        if (java.nio.ByteOrder.nativeOrder() == java.nio.ByteOrder.BIG_ENDIAN) {
+            // stb_image returns [R,G,B,A] per pixel. On BE, getInt() reads this as
+            // 0xRRGGBBAA, but Minecraft expects 0xAABBGGRR (ARGB).
+            // Byte-swap each 4-byte pixel so that any subsequent getInt() returns
+            // the correct ARGB value regardless of buffer byte order.
+            int pixels = capacity >> 2;
+            java.nio.IntBuffer ibuf = buf.asIntBuffer();
+            for (int i = 0; i < pixels; i++) {
+                ibuf.put(i, java.lang.Integer.reverseBytes(ibuf.get(i)));
+            }
+        } else {
+            buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        }
+        return buf;
     }
 
     // --- [ stbi_load ] ---

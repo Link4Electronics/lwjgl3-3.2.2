@@ -73,10 +73,29 @@
 **On BE (ppc64):** `getInt()` reads `[R, G, B, A]` as BE int = `0xRRGGBBAA` ✗ (components swapped!)
   - Purple (0xFF00FF) → Yellow (0xFFFF00), Black → Red — matches reported bug
 
-**Fix:**
-1. `STBImage.java`: `pixelBufferSafe()` wrapper returns ByteBuffers with `LITTLE_ENDIAN` order
-2. Minecraft's `NativeImage` constructor calls `.order(ByteOrder.nativeOrder())` → **overrides fix back to BE**
-3. Must modify the Minecraft jar: change the call to `ByteOrder.LITTLE_ENDIAN` instead
+**Fix (pixelBufferSafe byte-swap approach):**
+- STBImage.pixelBufferSafe() uses `Integer.reverseBytes(px)` on big-endian
+- Input bytes: `[R, G, B, A]` → BE int `0xRRGGBBAA` → reverseBytes → `0xAABBGGRR`
+- Stored back as BE bytes: `[A, B, G, R]` → getInt returns `0xAABBGGRR` ✓
+- Uses IntBuffer view of the SAME ByteBuffer to do in-place byte swap
+- Survives NativeImage's `.order(ByteOrder.nativeOrder())` call because the bytes are physically rearranged
+
+**CRITICAL: All `nstbi_*` native methods are `public static native`** (not private).
+- STBImage.java lines 155-550+ — all 43 `nstbi_*` methods (load, load_from_memory, load_from_callbacks,
+  load_gif_from_memory, load_16, loadf, info, etc.) are `public static native`
+- The byte-swap fix is in the public **wrapper** methods (e.g. `stbi_load_from_memory`), not in
+  the native methods themselves
+- If Minecraft (or any mod) calls an `nstbi_*` native method directly, it **bypasses** the fix
+  and gets un-swapped pixel data
+- Verified: Minecraft's `det.class` calls `STBImage.stbi_load_from_memory` (wrapper ✓),
+  `deu.class` calls `stbi_info_from_callbacks` (wrapper ✓) — but this could change across
+  Minecraft versions or with mods
+
+**Wrappers WITHOUT pixelBufferSafe** (not fixed):
+- `stbi_load_16*` (16-bit/short) → uses `memShortBufferSafe()` — **not swapped**
+- `stbi_loadf*` (float) → uses `memFloatBufferSafe()` — **not swapped**
+- These are not used by Minecraft 1.16.5's NativeImage (which uses 8-bit int packing),
+  but would need separate `pixelBufferSafeShort`/`pixelBufferSafeFloat` if needed later
 
 ## Cross-compile workflow (from x86_64)
 
